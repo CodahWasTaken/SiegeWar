@@ -72,6 +72,11 @@ public enum ConfigNodes {
 			"true",
 			"",
 			"# If true, then invasions are enabled."),
+	WAR_SIEGE_INVADE_CAPITAL_ENABLED(
+			"war.siege.switches.invade_capital_enabled",
+			"false",
+			"",
+			"# If true, then invasions of capitals are enabled."),
 	WAR_SIEGE_MILITARY_SALARY_ENABLED(
 			"war.siege.switches.military_salary_enabled",
 			"true",
@@ -189,7 +194,7 @@ public enum ConfigNodes {
 			"7",
 			"",
 			"# When plunder_paid_over_time is true, how many days will the plunder debt be paid over?"),
-	
+
 	WAR_SIEGE_CAPITAL_SIEGE_COST_INCREASE_PERCENTAGE(
 			"war.siege.money.capital_siege_cost_increase_percentage",
 			"0",
@@ -237,7 +242,7 @@ public enum ConfigNodes {
 			"# The cost that a town must pay to remain peaceful. Disabled when set to 0.0.",
 			"# This cost is paid after a town pays their upkeep and has their days-to-peaceful-change counted.",
 			"# If a town cannot pay the peaceful cost after they have their peaceful setting changed back to false."),
-	
+
 	WAR_SIEGE_QUANTITIES(
 			"war.siege.quantities",
 			"",
@@ -256,7 +261,13 @@ public enum ConfigNodes {
 			"# The value specifies the maximum number of active conquest-attack sieges allowed per nation." +
 			"# A low setting will generally reduce the aggression level on the server.",
 			"# A low setting will also rebalance the system in favour of smaller nations.",
-		 	"# This is because it will prevent larger nations from conducting as many sieges as their resources would otherwise allow."),
+			"# This is because it will prevent larger nations from conducting as many sieges as their resources would otherwise allow."),
+	WAR_SIEGE_MAX_ACTIVE_SIEGE_ATTACKS_PER_NATION_USE_LEVELS(
+			"war.siege.quantities.max_active_siege_attacks_per_nation_use_levels",
+			"false",
+			"",
+			"# When true, the above `max_active_siege_attacks_per_nation` is multiplied by the nations NationLevel number to calculate the maximum number of sieges for a nation.",
+			"# For example: if `max_active_siege_attacks_per_nation` is 3 and the nation's NationLevel is 2 then the nation in question can have up to 6 sieges."),
 	WAR_SIEGE_SIEGECAMPS(
             "war.siege.siege_assemblies",
             "",
@@ -857,6 +868,12 @@ public enum ConfigNodes {
 			"true",
 			"",
 			"# Should sessions be cancelled when there are no active sieges?"),
+	BATTLE_SESSION_SCHEDULER_ALLOWED_WEEKS(
+			"battle_session_scheduler.allowed_siege_battle_session_weeks",
+			"weekly",
+			"",
+			"# This setting allows siege battle sessions to be limited by week.",
+			"# Permitted values: weekly, odd-weeks-only, even-weeks-only"),
 	PVP_PROTECTION_OVERRIDES(
 			"pvp_protection_overrides",
 			"",

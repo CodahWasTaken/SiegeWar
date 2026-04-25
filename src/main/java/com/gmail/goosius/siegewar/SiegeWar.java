@@ -45,9 +45,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SiegeWar extends JavaPlugin {
-	
+
 	private static SiegeWar plugin;
-	private final String requiredTownyVersion = "0.102.0.0";
+	private final String requiredTownyVersion = "0.102.0.10";
 	private static final SiegeHUDManager siegeHUDManager = new SiegeHUDManager();
 	private final Object scheduler;
 
@@ -73,16 +73,16 @@ public class SiegeWar extends JavaPlugin {
 
 	@Override
     public void onEnable() {
-    	
-    	printSickASCIIArt();
-    	
+
+		printSickASCIIArt();
+
         if (!townyVersionCheck()) {
             severe("Towny version does not meet required minimum version: " + requiredTownyVersion);
             siegeWarPluginError = true;
         } else {
             info("Towny version " + getTownyVersion() + " found.");
         }
-        
+
         registerAdminCommands();
         handleLegacyConfigs();
 
@@ -105,7 +105,7 @@ public class SiegeWar extends JavaPlugin {
 			info("SiegeWar loaded successfully.");
 		}
     }
-    
+
     private void handleLegacyConfigs() {
 		if(siegeWarPluginError) {
 			severe("SiegeWar is in safe mode. Legacy configs not handled");
@@ -127,11 +127,11 @@ public class SiegeWar extends JavaPlugin {
 
 	@Override
     public void onDisable() {
-    	info("Shutting down...");
+		info("Shutting down...");
     }
-    
+
     private boolean loadAll() {
-    	return !Towny.getPlugin().isError()
+		return !Towny.getPlugin().isError()
 				&& Settings.loadSettingsAndLang()
 				&& SiegeController.loadAll();
     }
@@ -139,7 +139,7 @@ public class SiegeWar extends JavaPlugin {
 	public String getVersion() {
 		return getPluginMeta().getVersion();
 	}
-	
+
     private boolean townyVersionCheck() {
         try {
 			return Towny.isTownyVersionSupported(requiredTownyVersion);
@@ -169,7 +169,7 @@ public class SiegeWar extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	private boolean registerListeners() {
 		PluginManager pm = getServer().getPluginManager();
 		if (siegeWarPluginError) {
@@ -177,7 +177,8 @@ public class SiegeWar extends JavaPlugin {
 			return false;
 		} else {
 			pm.registerEvents(new SiegeWarActionListener(this), this);
-			pm.registerEvents(new SiegeWarBukkitEventListener(), this);		
+			pm.registerEvents(new SiegeWarBukkitEventListener(), this);
+			pm.registerEvents(new SiegeHUDManager(), this);
 			pm.registerEvents(new SiegeWarTownyEventListener(this), this);
 			pm.registerEvents(new SiegeWarNationEventListener(), this);
 			pm.registerEvents(new SiegeWarTownEventListener(this), this);
@@ -217,18 +218,18 @@ public class SiegeWar extends JavaPlugin {
 					 System.lineSeparator() + "<#2DE2E6>           /        \\|  \\  ___// /_/  >  ___/<#FF6C11>\\        /  / __ \\|  | \\/" +
 					 System.lineSeparator() + "<#2DE2E6>          /_______  /|__|\\___  >___  / \\___  ><#FF6C11>\\__/\\  /  (____  /__|   " +
 					 System.lineSeparator() + "<#2DE2E6>                  \\/         \\/_____/      \\/      <#FF6C11>\\/        \\/" +
-					 System.lineSeparator() + "<#791E94>                                By Goosius & LlmDl" + System.lineSeparator(); 
+					 System.lineSeparator() + "<#791E94>                                By Goosius & LlmDl" + System.lineSeparator();
 		Bukkit.getConsoleSender().sendMessage(Colors.translateColorCodes(art));
 	}
 
 	public boolean isError() {
 		return siegeWarPluginError;
 	}
-	
+
 	public static void info(String msg) {
 		plugin.getLogger().info(msg);
 	}
-	
+
 	public static void severe(String msg) {
 		plugin.getLogger().severe(msg);
 	}

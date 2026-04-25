@@ -51,7 +51,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		case "siegeimmunity":
 			if (args.length == 2)
 				return NameUtil.filterByStart(siegewaradminSiegeImmunityTabCompletes, args[1]);
-			
+
 			if (args.length == 3) {
 				switch (args[1].toLowerCase()) {
 				case "town":
@@ -62,7 +62,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 					return Arrays.asList("0","1","2","3","4","5","6","permanent");
 				}
 			}
-			
+
 			if (args.length == 4) {
 				if (args[1].equalsIgnoreCase("town") || args[1].equalsIgnoreCase("nation"))
 					return Arrays.asList("0","1","2","3","4","5","6","permanent");
@@ -119,7 +119,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		case "nation":
 			if (args.length == 2)
 				return getTownyStartingWith(args[1], "n");
-			
+
 			if (args.length == 3)
 				return NameUtil.filterByStart(siegewaradminNationTabCompletes, args[2]);
 		case "battlesession":
@@ -132,7 +132,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 				return Collections.emptyList();
 		}
 	}
-	
+
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		parseSiegeWarAdminCommand(sender, args);
 		return true;
@@ -207,8 +207,12 @@ public class SiegeWarAdminCommand implements TabExecutor {
 			groupNodes.add("siegewar.town.siege.*");
 		if (!groupNodes.contains("siegewar.command.siegewar.town.*"))
 			groupNodes.add("siegewar.command.siegewar.town.*");
+		if (!groupNodes.contains("siegewar.command.siegewar.collect"))
+			groupNodes.add("siegewar.command.siegewar.collect");
+		if (!groupNodes.contains("siegewar.command.siegewar.listpeacefultowns"))
+			groupNodes.add("siegewar.command.siegewar.listpeacefultowns");
 		file.set("towns.mayor", groupNodes);
-		
+
 		// Add nodes to the town assistant rank.
 		if (TownyPerms.mapHasGroup("towns.ranks.assistant")) {
 			groupNodes = TownyPerms.getPermsOfGroup("towns.ranks.assistant");
@@ -231,7 +235,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		groupNodes = TownyPerms.getPermsOfGroup("towns.ranks.guard");
 		groupNodes.add(townpoints);
 		file.set("towns.ranks.guard", groupNodes);
-		
+
 		// Populate nation ranks.
 		groupNodes = TownyPerms.getPermsOfGroup("nations.ranks.private");
 		groupNodes.add(nationpoints);
@@ -273,7 +277,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		groupNodes.add("towny.command.nation.rank.colonel");
 		groupNodes.add("towny.nation.siege.pay.grade.500");
 		file.set("nations.ranks.general", groupNodes);
-	
+
 		// Add nodes to king rank.
 		groupNodes = TownyPerms.getPermsOfGroup("nations.king");
 		if (!groupNodes.contains("siegewar.nation.siege.*"))
@@ -281,7 +285,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		if (!groupNodes.contains("siegewar.command.siegewar.nation.*"))
 			groupNodes.add("siegewar.command.siegewar.nation.*");
 		file.set("nations.king", groupNodes);
-		
+
 		// Add nodes to the nation assistant rank.
 		if (TownyPerms.mapHasGroup("nations.ranks.assistant")) {
 			groupNodes = TownyPerms.getPermsOfGroup("nations.ranks.assistant");
@@ -298,7 +302,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		file.set("economy.bankruptcy.enabled", "true");
 		file.set("town_ruining.town_ruins.enabled", "true");
 		file.set("town_ruining.town_ruins.min_duration_hours", "24");
-		file.save();		
+		file.save();
 		Messaging.sendMsg(sender, Translatable.of("msg.townyconfig.installation.complete"));
 	}
 
@@ -330,7 +334,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		TownyMessaging.sendMessage(sender, ChatTools.formatTitle("/swa battlesession"));
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/swa", "battlesession [start/end]", ""));
 	}
-	
+
 	private void showSiegeImmunityHelp(CommandSender sender) {
 		TownyMessaging.sendMessage(sender, ChatTools.formatTitle("/swa siegeimmunity"));
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/swa", "siegeimmunity town [town_name] [hours]", ""));
@@ -372,7 +376,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 			Messaging.sendMsg(sender, Translatable.of("config_and_lang_file_reloaded_successfully"));
 			return;
 		}
-		
+
 		Messaging.sendErrorMsg(sender, Translatable.of("config_and_lang_file_could_not_be_loaded"));
 	}
 
@@ -504,7 +508,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 				Messaging.sendErrorMsg(sender, Translatable.of("msg_err_not_registered_1", args[1]));
 				return;
 			}
-			
+
 			if (args[2].equalsIgnoreCase("permanent")) {
 				TownMetaDataController.setRevoltImmunityEndTime(town, -1L);
 				timeDuration = Translatable.of("msg_permanent").forLocale(sender);
@@ -530,7 +534,7 @@ public class SiegeWarAdminCommand implements TabExecutor {
 				endTime = System.currentTimeMillis() + (long)(Long.parseLong(args[2]) * TimeMgmt.ONE_HOUR_IN_MILLIS);
 				timeDuration = Long.parseLong(args[2]) + Translatable.of("msg_hours").forLocale(sender);
 			}
-			
+
 			for (Town town : nation.getTowns()) {
 				TownMetaDataController.setRevoltImmunityEndTime(town, endTime);
 			}
@@ -741,4 +745,3 @@ public class SiegeWarAdminCommand implements TabExecutor {
 		return matches;
 	}
 }
-

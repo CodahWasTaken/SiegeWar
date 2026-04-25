@@ -36,16 +36,16 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class SiegeWarCommand implements CommandExecutor, TabCompleter {
-	
-	private static final List<String> siegewarTabCompletes = Arrays.asList("collect", "town", "nation", "hud", 
+
+	private static final List<String> siegewarTabCompletes = Arrays.asList("collect", "town", "nation", "hud",
 			"listpeacefultowns", "listunpeacefultowns", "preference", "version", "nextsession", "spawn");
 
 	private static final List<String> siegewarTownTabCompletes = Arrays.asList("togglepeaceful");
-	
+
 	private static final List<String> siegewarNationTabCompletes = Arrays.asList("paysoldiers");
 
 	private static final List<String> siegewarPreferenceTabCompletes = Arrays.asList("beacons", "bossbars");
-	
+
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 
 		switch (args[0].toLowerCase()) {
@@ -110,11 +110,11 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/sw", "preference beacons [on/off]", ""));
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/sw", "preference bossbars [on/off]", ""));
 	}
-	
+
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if (sender instanceof Player && args.length > 0)
 			parseSiegeWarCommand((Player) sender, args);
-		else 
+		else
 			showSiegeWarHelp(sender);
 
 		return true;
@@ -129,7 +129,7 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 				return;
 			}
 		}
-			
+
 		switch (args[0]) {
 		case "collect":
 			parseSiegeWarCollectCommand(player);
@@ -175,12 +175,12 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 		else {
 			Translatable message = Translatable.of("msg_next_session_cannot_be_determined");
 			if (session.getScheduledStartTime() != null) {
-				long timeRemaining = session.getScheduledStartTime() - System.currentTimeMillis(); 
+				long timeRemaining = session.getScheduledStartTime() - System.currentTimeMillis();
 				message = Translatable.of("msg_next_siege_session_in_minutes", TimeMgmt.getFormattedTimeValue(timeRemaining));
 			}
 			Messaging.sendMsg(player, message);
 		}
-		
+
 	}
 
 	private void parseSiegeWarCollectCommand(Player player) {
@@ -213,15 +213,12 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 
 	private void parseSiegeWarHudCommand(Player player, String[] args) {
 		try {
-			if(SiegeWar.isFoliaClassPresent()) {
-				throw new TownyException(Translatable.of("msg_err_hud_not_available_in_folia"));
-			}
 			if (args.length == 0) {
 				TownyMessaging.sendMessage(player, ChatTools.formatTitle("/siegewar hud"));
 				TownyMessaging.sendMessage(player, ChatTools.formatCommand("Eg", "/sw hud", "[town]", ""));
 			} else {
 				Town town = TownyUniverse.getInstance().getTown(args[0]);
-				if (town == null) 
+				if (town == null)
 					throw new TownyException(Translatable.of("msg_err_town_not_registered", args[0]));
 
 				if (!SiegeController.getSiegedTowns().contains(town))
@@ -248,7 +245,7 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 			Messaging.sendErrorMsg(player, e.getMessage(player));
 		}
 	}
-	
+
 	private void parseSiegeWarNationCommand(Player player, String[] args) {
 		if (args.length == 0) {
 			showNationHelp(player);
@@ -345,7 +342,7 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 				continue;
 			TownyMessaging.sendMessage(player, " - <aqua>" + town.getFormattedName());
 		}
-		
+
 	}
 
 	private void parseSiegeWarListUnpeacefulTownsCommand(Player player) {

@@ -21,14 +21,17 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
 public class SiegeWarSettings {
-	
+
 	private static List<DayOfWeek> allowedDaysList = null;
-	private static String allowedWeeks = null;
+	private static String allowedWeeksStartSiege = null;
+	private static String allowedWeeksBattleSession = null;
 	private static List<Material> siegeZoneWildernessForbiddenBlockMaterials = null;
 	private static List<Material> siegeZoneWildernessForbiddenBucketMaterials = null;
 	private static List<EntityType> siegeZoneWildernessForbiddenExplodeEntityTypes = null;
 	protected static void resetCachedSettings() {
 		allowedDaysList = null;
+		allowedWeeksStartSiege = null;
+		allowedWeeksBattleSession = null;
 		siegeZoneWildernessForbiddenBlockMaterials = null;
 		siegeZoneWildernessForbiddenBucketMaterials = null;
 		siegeZoneWildernessForbiddenExplodeEntityTypes = null;
@@ -48,6 +51,10 @@ public class SiegeWarSettings {
 
 	public static boolean getWarSiegeInvadeEnabled() {
 		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_INVADE_ENABLED);
+	}
+
+	public static boolean getWarSiegeInvadeCapitalEnabled() {
+		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_INVADE_CAPITAL_ENABLED);
 	}
 
 	public static boolean getWarSiegePlunderEnabled() {
@@ -125,7 +132,7 @@ public class SiegeWarSettings {
 	public static int getWarBattlePointsForDefenderDeath() {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_POINTS_BALANCING_BASE_POINTS_BANNER_CONTROL_DEATHS_DEFENDER);
 	}
-	
+
 	public static int getWarSiegeZoneRadiusBlocks() {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_ZONE_RADIUS_BLOCKS);
 	}
@@ -166,14 +173,20 @@ public class SiegeWarSettings {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_MAX_ACTIVE_SIEGE_ATTACKS_PER_NATION);
 	}
 
+	public static boolean getWarSiegeMaxActiveSiegeAttacksPerNationUseLevels() {
+		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_MAX_ACTIVE_SIEGE_ATTACKS_PER_NATION_USE_LEVELS);
+	}
+
 	public static boolean doesThisNationHaveTooManyActiveSieges(Nation nation) {
-		return SiegeController.getNumActiveConquestAttackSieges(nation) >= getWarSiegeMaxActiveSiegeAttacksPerNation();
+		int multiplier = getWarSiegeMaxActiveSiegeAttacksPerNationUseLevels() ? nation.getLevelNumber() : 1;
+		int maxAllowedSieges = multiplier * getWarSiegeMaxActiveSiegeAttacksPerNation();
+		return SiegeController.getNumActiveConquestAttackSieges(nation) >= maxAllowedSieges;
 	}
 
 	public static boolean getWarCommonPeacefulTownsEnabled() {
 		return Settings.getBoolean(ConfigNodes.PEACEFUL_TOWNS_ENABLED);
 	}
-	
+
 	public static boolean getNewTownPeacefulness() {
 		return Settings.getBoolean(ConfigNodes.PEACEFUL_TOWNS_NEW_TOWN_PEACEFULNESS);
 	}
@@ -256,7 +269,7 @@ public class SiegeWarSettings {
 		}
 		return siegeZoneWildernessForbiddenExplodeEntityTypes;
 	}
-	
+
 
 	public static boolean isPeacefulTownsSubvertEnabled() {
 		return Settings.getBoolean(ConfigNodes.PEACEFUL_TOWNS_SUBVERT_ENABLED);
@@ -374,25 +387,29 @@ public class SiegeWarSettings {
 	public static boolean areSiegeCampsEnabled() {
 		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_SIEGECAMPS_ENABLED);
 	}
-	
+
 	public static long getFailedSiegeCampCooldown() {
 		return Settings.getSeconds(ConfigNodes.WAR_SIEGE_SIEGECAMPS_COOLDOWN);
 	}
-	
+
 	public static int getSiegeCampPointsForSuccess() {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_SIEGECAMPS_POINTS);
 	}
-	
+
 	public static int getSiegeCampPointsPerMinute() {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_SIEGECAMPS_POINTS_PER_MINUTE);
 	}
-	
+
 	public static int getSiegeCampDurationInMinutes() {
 		return Settings.getInt(ConfigNodes.WAR_SIEGE_SIEGECAMPS_DURATION_IN_MINUTES);
 	}
 
 	public static String getSiegeStartDayLimiterAllowedWeeks() {
 		return Settings.getString(ConfigNodes.SIEGE_START_DAY_LIMITER_ALLOWED_WEEKS);
+	}
+
+	public static String getBattleSessionSchedulerAllowedWeeks() {
+		return Settings.getString(ConfigNodes.BATTLE_SESSION_SCHEDULER_ALLOWED_WEEKS);
 	}
 
 	public static List<DayOfWeek> getSiegeStartDayLimiterAllowedDays() {
@@ -409,13 +426,9 @@ public class SiegeWarSettings {
 	}
 
 	public static boolean doesTodayAllowASiegeToStart() {
-		//Check week of year
-		if(allowedWeeks == null)
-			allowedWeeks = getSiegeStartDayLimiterAllowedWeeks();
-		int weekOfYear = LocalDate.now().get(WeekFields.ISO.weekOfWeekBasedYear());
-		if(allowedWeeks.equalsIgnoreCase("even-weeks-only") && weekOfYear %2 != 0)
-			return false;
-		if(allowedWeeks.equalsIgnoreCase("odd-weeks-only") && weekOfYear %2 != 1)
+		if(allowedWeeksStartSiege == null)
+			allowedWeeksStartSiege = getSiegeStartDayLimiterAllowedWeeks();
+		if(!doesDateAllowConfiguredWeeks(LocalDate.now(), allowedWeeksStartSiege))
 			return false;
 
 		//Check day of week
@@ -425,6 +438,23 @@ public class SiegeWarSettings {
 			return false;
 
 		return true;
+	}
+
+	private static boolean doesDateAllowConfiguredWeeks(LocalDate date, String allowedWeeks) {
+		int weekOfYear = date.get(WeekFields.ISO.weekOfWeekBasedYear());
+		if(allowedWeeks.equalsIgnoreCase("even-weeks-only"))
+			return weekOfYear % 2 == 0;
+		if(allowedWeeks.equalsIgnoreCase("odd-weeks-only"))
+			return weekOfYear % 2 == 1;
+
+		return true;
+	}
+
+	private static int getBattleSessionSearchWindowDays() {
+		if (allowedWeeksBattleSession == null)
+			allowedWeeksBattleSession = getBattleSessionSchedulerAllowedWeeks();
+
+		return allowedWeeksBattleSession.equalsIgnoreCase("even-weeks-only") || allowedWeeksBattleSession.equalsIgnoreCase("odd-weeks-only") ? 14 : 7;
 	}
 
 	public static int getSiegeBalanceCapValue() {
@@ -450,8 +480,7 @@ public class SiegeWarSettings {
 	@Nullable
 	public static LocalDateTime getNextBattleSessionDaysInAdvance() {
 		LocalDateTime nextSession = null;
-		// Check the next 1-6 days for battle session start times. 
-		for (int i = 1 ; i < 7 ; i++) {
+		for (int i = 1 ; i < getBattleSessionSearchWindowDays() ; i++) {
 			List<LocalDateTime> allBattleSessionStartTimesForDate = getAllBattleSessionStartTimesForDay(LocalDate.now().plusDays(i));
 			if (allBattleSessionStartTimesForDate.size() != 0) {
 				nextSession = allBattleSessionStartTimesForDate.get(0);
@@ -462,6 +491,12 @@ public class SiegeWarSettings {
 	}
 
 	private static List<LocalDateTime> getAllBattleSessionStartTimesForDay(LocalDate day) {
+		if(allowedWeeksBattleSession == null)
+			allowedWeeksBattleSession = getBattleSessionSchedulerAllowedWeeks();
+
+		if(!doesDateAllowConfiguredWeeks(day, allowedWeeksBattleSession))
+			return new ArrayList<>();
+
 		//Get Start times for the given day
 		String startTimesAsString = "";
 		switch (day.getDayOfWeek()) {
@@ -489,9 +524,9 @@ public class SiegeWarSettings {
 		}
 
 		//Transform the config file strings into a list of LocalDateTime objects
-		List<LocalDateTime> startTimesAsList = new ArrayList<>();	
-		if(startTimesAsString.length() > 0) {		
-			String[] startTimeAsHourMinutePair;		
+		List<LocalDateTime> startTimesAsList = new ArrayList<>();
+		if(startTimesAsString.length() > 0) {
+			String[] startTimeAsHourMinutePair;
 			LocalDateTime startTime;
 			for(String startTimeAsString: startTimesAsString.split(",")) {
 				if (startTimeAsString.contains(":")) {
@@ -500,7 +535,7 @@ public class SiegeWarSettings {
 				} else {
 					startTime = LocalDateTime.of(day, LocalTime.of(Integer.parseInt(startTimeAsString), 0));
 				}
-				startTimesAsList.add(startTime);	
+				startTimesAsList.add(startTime);
 			}
 		}
 		return startTimesAsList;
@@ -650,14 +685,14 @@ public class SiegeWarSettings {
 	}
 	public static double getBadConfigWarningsIdealWarchestPercentage() {
 		return Settings.getDouble(ConfigNodes.BAD_CONFIG_WARNINGS_IDEAL_WARCHEST_PERCENTAGE);
-	}	
+	}
 	public static double getBadConfigWarningsIdealUpfrontCostPercentage() {
 		return Settings.getDouble(ConfigNodes.BAD_CONFIG_WARNINGS_IDEAL_UPFRONTCOST_PERCENTAGE);
-	}	
+	}
 	public static double getBadConfigWarningsIdealOccupationTaxPercentage() {
 		return Settings.getDouble(ConfigNodes.BAD_CONFIG_WARNINGS_IDEAL_OCCUPATIONTAX_PERCENTAGE);
 	}
-	
+
 	public static boolean isBattleCommandersEnabled() {
 		return Settings.getBoolean(ConfigNodes.BATTLE_COMMANDERS_ENABLED);
 	}

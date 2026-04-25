@@ -35,7 +35,7 @@ public class InvadeTown {
 	 * @throws TownyException when the invasion won't be allowed.
 	 */
 	public static void processInvadeTownRequest(Player player, Nation residentsNation, Town targetTown, Siege siege) throws TownyException {
-		
+
 		// Throw an exception if this is not an allowable invasion.
 		allowInvasionOrThrow(player, residentsNation, targetTown, siege);
 
@@ -45,7 +45,7 @@ public class InvadeTown {
 			if (!preEvent.getCancellationMsg().isEmpty())
 				Messaging.sendErrorMsg(player, preEvent.getCancellationMsg());
 		} else {
-			invadeTown(residentsNation, targetTown, siege);	
+			invadeTown(residentsNation, targetTown, siege);
 		}
 	}
 
@@ -121,9 +121,9 @@ public class InvadeTown {
 		if (!siege.getStatus().allowsInvading())
 			throw new TownyException(translator.of("msg_err_cannot_invade_without_victory"));
 
-        if (siege.getTown().isCapital())
+        if (!SiegeWarSettings.getWarSiegeInvadeCapitalEnabled() && siege.getTown().isCapital())
             throw new TownyException(translator.of("msg_err_cannot_capture_capital_town"));
-        
+
 		if (siege.isTownInvaded())
 			throw new TownyException(translator.of("msg_err_town_already_invaded"));
 

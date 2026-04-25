@@ -11,7 +11,6 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.object.WorldCoord;
-import com.palmergames.paperlib.PaperLib;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -20,28 +19,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SiegeWarSpawnUtil {
-    
+
     private static final Set<Player> playersWithTeleportPasses = new HashSet<>();
-    
+
     public static boolean doesPlayerHasTeleportPass(Player player) {
         return playersWithTeleportPasses.contains(player);
     }
-    
+
     private static void grandTeleportPassToPlayer(Player player) {
         playersWithTeleportPasses.add(player);
     }
-    
+
     public static void removePlayerTeleportPass(Player player) {
         playersWithTeleportPasses.remove(player);
     }
-    
+
     /**
      * Evaluate a spawn to siege request
      *
      * - If the primary nation/town has just 1 general/mayor in the siegezone, spawn to them.
      * - If any allied nation has just 1 general in the siegezone, spawn to them.
      * - Otherwise spawn is unavailable.
-     * 
+     *
      * @param player the player trying to spawn
      * @param besiegedTown the besieged town
      */
@@ -94,6 +93,6 @@ public class SiegeWarSpawnUtil {
         //Grant teleport pass in order to bypass SW's teleport blocker
         grandTeleportPassToPlayer(player);
         //SPAWN!
-        PaperLib.teleportAsync(player, battleCommander.getLocation(), TeleportCause.COMMAND);
+        player.teleportAsync(battleCommander.getLocation(), TeleportCause.COMMAND);
     }
 }
