@@ -8,9 +8,12 @@ import com.gmail.goosius.siegewar.enums.SiegeStatus;
 import com.gmail.goosius.siegewar.events.BattleSessionEndedEvent;
 import com.gmail.goosius.siegewar.events.BattleSessionPreStartEvent;
 import com.gmail.goosius.siegewar.events.BattleSessionStartedEvent;
+import com.gmail.goosius.siegewar.metadata.ResidentMetaDataController;
 import com.gmail.goosius.siegewar.objects.BattleSession;
 import com.gmail.goosius.siegewar.objects.Siege;
 import com.gmail.goosius.siegewar.settings.SiegeWarSettings;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.Translatable;
@@ -70,7 +73,7 @@ public class SiegeWarBattleSessionUtil {
 			if (!discordLink.isEmpty())
 				message.append(Translatable.of("msg_can_also_chat_in_discord", discordLink));
 		}
-		Messaging.sendGlobalMessage(message);
+		sendBattleSessionGlobalMessage(message);
 		//Assign siege commanders
 		SiegeWarBattleCommanderUtil.assignBattleCommanders();
 		//Start the bossbar for the Battle Session
@@ -219,7 +222,7 @@ public class SiegeWarBattleSessionUtil {
 			if(SiegeWarSettings.isToxicityReductionEnabled()) {
 				if(battleSession.isChatDisabled() && System.currentTimeMillis() > battleSession.getScheduledGeneralChatRestorationTime()) {
 					battleSession.setChatDisabled(false);
-					Messaging.sendGlobalMessage(Translatable.of("msg_chat_now_restored"));
+					sendBattleSessionGlobalMessage(Translatable.of("msg_chat_now_restored"));
 				}
 			}
 
@@ -239,7 +242,7 @@ public class SiegeWarBattleSessionUtil {
 						//Null the next scheduled time, so it can be reset on the next ShortTime.
 						battleSession.setScheduledStartTime(null);
 						//Broadcast a cancelled BatterlSession message.
-						Messaging.sendGlobalMessage(event.getCancellationMsg());
+						sendBattleSessionGlobalMessage(event.getCancellationMsg());
 						return;
 					}
 					
@@ -281,7 +284,46 @@ public class SiegeWarBattleSessionUtil {
 	 * with a brief summary of who won any battles which were fought
 	 */
 	private static void sendBattleSessionEndedMessage(Map<Siege, Integer> battleResults) {
-		Messaging.sendGlobalMessage(getBattleSessionEndedMessageHeader(battleResults),getBattleSessionEndedMessageLines(battleResults));
+		sendBattleSessionGlobalMessage(getBattleSessionEndedMessageHeader(battleResults),getBattleSessionEndedMessageLines(battleResults));
+	}
+
+	private static void sendBattleSessionGlobalMessage(Translatable message) {
+		SiegeWar.info(message.defaultLocale());
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (canSendBattleSessionMessageTo(player))
+				Messaging.sendMsg(player, message);
+		}
+	}
+
+	private static void sendBattleSessionGlobalMessage(String message) {
+		SiegeWar.info(message);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (canSendBattleSessionMessageTo(player))
+				Messaging.sendMsg(player, message);
+		}
+	}
+
+	private static void sendBattleSessionGlobalMessage(Translatable header, List<Translatable> lines) {
+		SiegeWar.info(header.defaultLocale());
+		for(Translatable line: lines) {
+			SiegeWar.info(line.defaultLocale());
+		}
+		for(Player player: Bukkit.getOnlinePlayers()) {
+			if(canSendBattleSessionMessageTo(player)) {
+				Messaging.sendMsg(player, header);
+				for(Translatable line: lines) {
+					Messaging.sendMsg(player, line);
+				}
+			}
+		}
+	}
+
+	private static boolean canSendBattleSessionMessageTo(Player player) {
+		if (player == null || !TownyAPI.getInstance().isTownyWorld(player.getLocation().getWorld()))
+			return false;
+
+		Resident resident = TownyAPI.getInstance().getResident(player);
+		return resident == null || !ResidentMetaDataController.getBattleSessionMessagesDisabled(resident);
 	}
 
 	/**

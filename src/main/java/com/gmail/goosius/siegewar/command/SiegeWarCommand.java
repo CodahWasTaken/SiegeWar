@@ -44,7 +44,7 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 
 	private static final List<String> siegewarNationTabCompletes = Arrays.asList("paysoldiers");
 
-	private static final List<String> siegewarPreferenceTabCompletes = Arrays.asList("beacons", "bossbars");
+	private static final List<String> siegewarPreferenceTabCompletes = Arrays.asList("beacons", "bossbars", "sessionmessages");
 
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 
@@ -109,6 +109,7 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 		TownyMessaging.sendMessage(sender, ChatTools.formatTitle("/siegewar preference"));
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/sw", "preference beacons [on/off]", ""));
 		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/sw", "preference bossbars [on/off]", ""));
+		TownyMessaging.sendMessage(sender, ChatTools.formatCommand("Eg", "/sw", "preference sessionmessages [on/off]", ""));
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -403,6 +404,13 @@ public class SiegeWarCommand implements CommandExecutor, TabCompleter {
 					if (disabled)
 						BossBarUtil.removeBossBars(player);
 					Messaging.sendMsg(player, Translatable.of("msg_bossbar_preference_set", args[1].toUpperCase()));
+					break;
+				}
+				case "sessionmessages":
+				case "battlesessionmessages": {
+					boolean disabled = args[1].equalsIgnoreCase("off");
+					ResidentMetaDataController.setBattleSessionMessagesDisabled(resident, disabled);
+					Messaging.sendMsg(player, Translatable.of("msg_battle_session_message_preference_set", args[1].toUpperCase()));
 					break;
 				}
 				default:
