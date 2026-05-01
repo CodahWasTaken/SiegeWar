@@ -127,7 +127,9 @@ public class SiegeCamp {
 	public void startSiege() {
 		//Test that the siege starter can pay the siege start cost
 		if (TownyEconomyHandler.isActive()) {
-			double siegeStartCost = SiegeWarMoneyUtil.calculateTotalSiegeStartCost(targetTown);
+			double siegeStartCost = siegeType.equals(SiegeType.REVOLT)
+				? SiegeWarMoneyUtil.calculateRevoltSiegeStartCost(targetTown)
+				: SiegeWarMoneyUtil.calculateTotalSiegeStartCost(targetTown);
 			if (siegeType.equals(SiegeType.CONQUEST) && !attacker.getAccount().canPayFromHoldings(siegeStartCost)) {
 				TownyMessaging.sendPrefixedNationMessage((Nation)attacker, Translatable.of("msg_err_your_nation_cannot_afford_to_siege_for_x", TownyEconomyHandler.getFormattedBalance(siegeStartCost)));
 				return;

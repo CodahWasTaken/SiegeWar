@@ -170,6 +170,10 @@ public class SiegeWarMoneyUtil {
 		return calculateUpfrontSiegeStartCost(town) + calculateWarchestCost(town);
 	}
 
+	public static double calculateRevoltSiegeStartCost(Town town) {
+		return calculateTotalSiegeStartCost(town);
+	}
+
 	private static double applyMoneyModifiers(double cost, Town town) {
 		//Increase cost if town is capitol
 		if(SiegeWarSettings.getWarSiegeCapitalCostIncreasePercentage() > 0
@@ -253,7 +257,7 @@ public class SiegeWarMoneyUtil {
 	 * @throws TownyException thrown if town cannot pay.
 	 */
 	public static void throwIfTownCannotAffordToStartSiege(Town town) throws TownyException {
-		double cost = calculateUpfrontSiegeStartCost(town);
+		double cost = calculateRevoltSiegeStartCost(town);
 		if(cost > 0) {
 			if (!TownyEconomyHandler.isActive())
 				return; //Siege cost does not apply
@@ -368,15 +372,18 @@ public class SiegeWarMoneyUtil {
 	 * @param siege the siege
 	 */
 	public static void payUpfrontSiegeStartCost(Siege siege) {
-		double cost = SiegeWarMoneyUtil.calculateUpfrontSiegeStartCost(siege.getTown());
-		if(TownyEconomyHandler.isActive() && SiegeWarSettings.getWarSiegeUpfrontCostPerPlot() > 0) {
-			if(siege.getSiegeType() == SiegeType.CONQUEST) {
+		if(TownyEconomyHandler.isActive()) {
+			if(siege.getSiegeType() == SiegeType.CONQUEST && SiegeWarSettings.getWarSiegeUpfrontCostPerPlot() > 0) {
+				double cost = SiegeWarMoneyUtil.calculateUpfrontSiegeStartCost(siege.getTown());
 				siege.getAttacker().getAccount().withdraw(cost, "Upfront cost of starting siege.");
 				Translatable moneyMessage =
 						Translatable.of("msg_nation_pay_upfront_siege_cost",
 								TownyEconomyHandler.getFormattedBalance(cost));
 				TownyMessaging.sendPrefixedNationMessage((Nation)siege.getAttacker(), moneyMessage);
 			} else if(siege.getSiegeType() == SiegeType.REVOLT) {
+				double cost = SiegeWarMoneyUtil.calculateRevoltSiegeStartCost(siege.getTown());
+				if (cost <= 0)
+					return;
 				siege.getTown().getAccount().withdraw(cost, "Upfront cost of starting siege.");
 				Translatable moneyMessage =
 						Translatable.of("msg_town_pay_upfront_siege_cost",
