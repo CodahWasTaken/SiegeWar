@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityExhaustionEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -76,7 +77,25 @@ public class SiegeWarBukkitEventListener implements Listener {
 			}
 		}
 	}
-	
+
+	/*
+	 * Towny's prevent_saturation_loss feature stops hunger/saturation loss in claims
+	 * by cancelling the EntityExhaustionEvent (at NORMAL priority). We run afterwards
+	 * and un-cancel it inside active siege zones, so players get hungry normally while
+	 * fighting in claimed land that lies within a siege zone.
+	 */
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+	public void onEntityExhaustion(EntityExhaustionEvent event) {
+		if (!SiegeWarSettings.getWarSiegeEnabled() || !SiegeWarSettings.isHungerEnabledInSiegeZone())
+			return;
+		if (!event.isCancelled())
+			return;
+		if (!(event.getEntity() instanceof Player player))
+			return;
+		if (SiegeWarDistanceUtil.isLocationInActiveSiegeZone(player.getLocation()))
+			event.setCancelled(false);
+	}
+
 	/*
 	 * Duplicates what exists in the TownyBlockListener but on a higher priority.
 	 */

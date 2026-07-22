@@ -28,6 +28,7 @@ public class SiegeWarSettings {
 	private static List<Material> siegeZoneWildernessForbiddenBlockMaterials = null;
 	private static List<Material> siegeZoneForbiddenBlockMaterials = null;
 	private static List<Material> siegeZoneWildernessForbiddenBucketMaterials = null;
+	private static List<Material> siegeZoneForbiddenBucketMaterials = null;
 	private static List<EntityType> siegeZoneWildernessForbiddenExplodeEntityTypes = null;
 	protected static void resetCachedSettings() {
 		allowedDaysList = null;
@@ -36,6 +37,7 @@ public class SiegeWarSettings {
 		siegeZoneWildernessForbiddenBlockMaterials = null;
 		siegeZoneForbiddenBlockMaterials = null;
 		siegeZoneWildernessForbiddenBucketMaterials = null;
+		siegeZoneForbiddenBucketMaterials = null;
 		siegeZoneWildernessForbiddenExplodeEntityTypes = null;
 	}
 
@@ -271,6 +273,20 @@ public class SiegeWarSettings {
 			}
 		}
 		return siegeZoneWildernessForbiddenBucketMaterials;
+	}
+
+	public static List<Material> getSiegeZoneForbiddenBucketMaterials() {
+		if(siegeZoneForbiddenBucketMaterials == null) {
+			siegeZoneForbiddenBucketMaterials = new ArrayList<>();
+			String listAsString = Settings.getString(ConfigNodes.SIEGE_MATERIAL_RESTRICTIONS_SIEGEZONE_BUCKET_EMPTYING_PREVENTION_MATERIALS);
+			String[] listAsStringArray = listAsString.split(",");
+			for (String blockTypeAsString : listAsStringArray) {
+				Material material = Material.matchMaterial(blockTypeAsString.trim());
+				if (material != null)
+					siegeZoneForbiddenBucketMaterials.add(material);
+			}
+		}
+		return siegeZoneForbiddenBucketMaterials;
 	}
 
 	public static List<EntityType> getSiegeZoneWildernessForbiddenExplodeEntityTypes() {
@@ -603,6 +619,10 @@ public class SiegeWarSettings {
 
 	public static boolean isGlowingEnabled() {
 		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_GLOWING);
+	}
+
+	public static boolean isHungerEnabledInSiegeZone() {
+		return Settings.getBoolean(ConfigNodes.WAR_SIEGE_ZONE_HUNGER_ENABLED);
 	}
 
 	public static boolean isOnlyOneActionEnabled() {

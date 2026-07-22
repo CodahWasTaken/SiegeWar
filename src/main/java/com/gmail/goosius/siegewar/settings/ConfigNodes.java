@@ -130,6 +130,14 @@ public enum ConfigNodes {
 			"",
 			"# When true, if an attackers wins the battlesession against a sieged town, that",
 			"# town's jailed players that belong to the attacking nation will be freed from the town's jail."),
+	WAR_SIEGE_ZONE_HUNGER_ENABLED(
+			"war.siege.switches.enable_hunger_in_siege_zone",
+			"true",
+			"",
+			"# If true, then Towny's 'no hunger in claims' (prevent_saturation_loss) feature",
+			"# is overridden inside active siege zones, so players lose hunger/saturation normally",
+			"# while in claimed land that falls within a siege zone.",
+			"# This has no effect if Towny's prevent_saturation_loss setting is disabled."),
 	WAR_SIEGE_GLOWING(
 			"war.siege.switches.enabled_glowing_on_players",
 			"true",
@@ -586,6 +594,15 @@ public enum ConfigNodes {
 			"",
 			"# This setting is useful to help prevent extreme siege-zone grief such as obsidian forts or cobble monsters.",
 			"# The list is used to indicate the list of forbidden buckets"),
+	SIEGE_MATERIAL_RESTRICTIONS_SIEGEZONE_BUCKET_EMPTYING_PREVENTION_MATERIALS(
+			"siege_material_restrictions.siegezone_bucket_usage_prevention_materials",
+			"lava_bucket",
+			"",
+			"# This setting is similar to wilderness_bucket_usage_prevention_materials,",
+			"# but applies EVERYWHERE inside an active siege zone, including claimed town land,",
+			"# and applies to ALL players regardless of side. It is enforced both during and",
+			"# between battle sessions, for as long as the siege is active.",
+			"# Useful to block grief buckets such as lava inside the siege zone."),
 	SIEGE_MATERIAL_RESTRICTIONS_WILDERNESS_EXPLOSION_PREVENTION_ENTITY_TYPES(
 			"siege_material_restrictions.wilderness_explosion_prevention_entity_types",
 			"primed_tnt, minecart_tnt",
