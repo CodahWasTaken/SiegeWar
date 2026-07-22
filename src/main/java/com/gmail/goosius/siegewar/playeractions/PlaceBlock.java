@@ -85,6 +85,14 @@ public class PlaceBlock {
 				}
 			}
 
+			//Siege-zone-wide forbidden material placement prevention.
+			//Applies everywhere in an active siege zone (claimed land + wilderness),
+			//to all players, both during and between battle sessions.
+			if (SiegeWarSettings.getSiegeZoneForbiddenBlockMaterials().contains(mat)
+					&& SiegeWarDistanceUtil.isLocationInActiveSiegeZone(event.getLocation())) {
+				throw new TownyException(translator.of("msg_war_siege_zone_block_placement_forbidden"));
+			}
+
 			//Trap warfare block protection
 			if(event.hasTownBlock()) {
 				//Trap warfare besieged-town block protection

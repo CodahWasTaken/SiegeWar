@@ -26,6 +26,7 @@ public class SiegeWarSettings {
 	private static String allowedWeeksStartSiege = null;
 	private static String allowedWeeksBattleSession = null;
 	private static List<Material> siegeZoneWildernessForbiddenBlockMaterials = null;
+	private static List<Material> siegeZoneForbiddenBlockMaterials = null;
 	private static List<Material> siegeZoneWildernessForbiddenBucketMaterials = null;
 	private static List<EntityType> siegeZoneWildernessForbiddenExplodeEntityTypes = null;
 	protected static void resetCachedSettings() {
@@ -33,6 +34,7 @@ public class SiegeWarSettings {
 		allowedWeeksStartSiege = null;
 		allowedWeeksBattleSession = null;
 		siegeZoneWildernessForbiddenBlockMaterials = null;
+		siegeZoneForbiddenBlockMaterials = null;
 		siegeZoneWildernessForbiddenBucketMaterials = null;
 		siegeZoneWildernessForbiddenExplodeEntityTypes = null;
 	}
@@ -244,6 +246,20 @@ public class SiegeWarSettings {
 		return siegeZoneWildernessForbiddenBlockMaterials;
 	}
 
+	public static List<Material> getSiegeZoneForbiddenBlockMaterials() {
+		if(siegeZoneForbiddenBlockMaterials == null) {
+			siegeZoneForbiddenBlockMaterials = new ArrayList<>();
+			String listAsString = Settings.getString(ConfigNodes.SIEGE_MATERIAL_RESTRICTIONS_SIEGEZONE_BLOCK_PLACEMENT_PREVENTION_MATERIALS);
+			String[] listAsStringArray = listAsString.split(",");
+			for (String blockTypeAsString : listAsStringArray) {
+				Material material = Material.matchMaterial(blockTypeAsString.trim());
+				if (material != null)
+					siegeZoneForbiddenBlockMaterials.add(material);
+			}
+		}
+		return siegeZoneForbiddenBlockMaterials;
+	}
+
 	public static List<Material> getSiegeZoneWildernessForbiddenBucketMaterials() {
 		if(siegeZoneWildernessForbiddenBucketMaterials == null) {
 			siegeZoneWildernessForbiddenBucketMaterials = new ArrayList<>();
@@ -281,6 +297,10 @@ public class SiegeWarSettings {
 
 	public static boolean arePeacefulTownsNotAllowedToAssignMilitaryRanks() {
 		return Settings.getBoolean(ConfigNodes.PEACEFUL_TOWNS_CANNOT_ASSIGN_MILITARY_RANKS);
+	}
+
+	public static boolean arePeacefulTownResidentsNotAllowedToParticipate() {
+		return Settings.getBoolean(ConfigNodes.PEACEFUL_TOWNS_RESIDENTS_CANNOT_PARTICIPATE);
 	}
 
 	public static boolean arePeacefulTownsNotAllowedToMoveHomeBlock() {

@@ -10,17 +10,27 @@ public class SiegeWarMilitaryRanksUtil {
     
     public static void removeMilitaryRanksFromTownResidents(Town town) {
         for(Resident townResident: town.getResidents()) {
-            //Remove town ranks
-            for (String townRank : new ArrayList<>(townResident.getTownRanks())) {
-                if (PermissionUtil.doesTownRankAllowPermissionNode(townRank, SiegeWarPermissionNodes.SIEGEWAR_TOWN_SIEGE_BATTLE_POINTS)) {
-                    townResident.removeTownRank(townRank);
-                }
+            removeMilitaryRanksFromResident(townResident);
+        }
+    }
+
+    /**
+     * Removes any military ranks (town or nation ranks which grant siege battle-point
+     * permission nodes) from a single resident.
+     *
+     * @param resident the resident to strip military ranks from
+     */
+    public static void removeMilitaryRanksFromResident(Resident resident) {
+        //Remove town ranks
+        for (String townRank : new ArrayList<>(resident.getTownRanks())) {
+            if (PermissionUtil.doesTownRankAllowPermissionNode(townRank, SiegeWarPermissionNodes.SIEGEWAR_TOWN_SIEGE_BATTLE_POINTS)) {
+                resident.removeTownRank(townRank);
             }
-            //Remove nation ranks
-            for (String nationRank : new ArrayList<>(townResident.getNationRanks())) {
-                if (PermissionUtil.doesNationRankAllowPermissionNode(nationRank, SiegeWarPermissionNodes.SIEGEWAR_NATION_SIEGE_BATTLE_POINTS)) {
-                    townResident.removeNationRank(nationRank);
-                }
+        }
+        //Remove nation ranks
+        for (String nationRank : new ArrayList<>(resident.getNationRanks())) {
+            if (PermissionUtil.doesNationRankAllowPermissionNode(nationRank, SiegeWarPermissionNodes.SIEGEWAR_NATION_SIEGE_BATTLE_POINTS)) {
+                resident.removeNationRank(nationRank);
             }
         }
     }

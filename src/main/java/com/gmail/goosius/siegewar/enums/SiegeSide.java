@@ -3,6 +3,7 @@ package com.gmail.goosius.siegewar.enums;
 import org.bukkit.entity.Player;
 
 import com.gmail.goosius.siegewar.objects.Siege;
+import com.gmail.goosius.siegewar.settings.SiegeWarSettings;
 import com.gmail.goosius.siegewar.utils.SiegeWarTownPeacefulnessUtil;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Government;
@@ -29,6 +30,13 @@ public enum SiegeSide {
 		if (resident == null || !resident.hasTown())
 			return SiegeSide.NOBODY;
 		Town town = resident.getTownOrNull();
+
+		// Residents of peaceful towns (including auto-ranked nation leaders) cannot
+		// participate in SiegeWar. They count as non-participants, so they earn no
+		// battle points, cannot control banners, and will receive siege sickness.
+		if (SiegeWarSettings.arePeacefulTownResidentsNotAllowedToParticipate()
+				&& SiegeWarTownPeacefulnessUtil.isTownPeaceful(town))
+			return SiegeSide.NOBODY;
 
 		// Look for defender
 		Town besiegedTown = siege.getTown();

@@ -11,11 +11,13 @@ import com.gmail.goosius.siegewar.metadata.TownMetaDataController;
 import com.gmail.goosius.siegewar.objects.Siege;
 import com.gmail.goosius.siegewar.settings.SiegeWarSettings;
 import com.gmail.goosius.siegewar.utils.SiegeWarDistanceUtil;
+import com.gmail.goosius.siegewar.utils.SiegeWarMilitaryRanksUtil;
 import com.gmail.goosius.siegewar.utils.SiegeWarTownPeacefulnessUtil;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyMessaging;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownAddResidentRankEvent;
 import com.palmergames.bukkit.towny.event.TownPreAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownPreClaimEvent;
@@ -263,6 +265,21 @@ public class SiegeWarTownEventListener implements Listener {
 		if(TownOccupationController.isTownOccupied(event.getTown())) {
 			event.setCancelled(true);
 		}
+	}
+
+	/**
+	 * When a resident joins a peaceful town, strip any military ranks they carried
+	 * over (e.g. a nation rank kept while moving between towns of the same nation).
+	 * Towny already removes town ranks on leaving a town, but nation ranks persist.
+	 */
+	@EventHandler
+	public void onResidentJoinsTown(TownAddResidentEvent event) {
+		if (!SiegeWarSettings.getWarSiegeEnabled()
+				|| !SiegeWarSettings.arePeacefulTownsNotAllowedToAssignMilitaryRanks())
+			return;
+
+		if (SiegeWarTownPeacefulnessUtil.isTownPeaceful(event.getTown()))
+			SiegeWarMilitaryRanksUtil.removeMilitaryRanksFromResident(event.getResident());
 	}
 
 	@EventHandler(ignoreCancelled = true)
